@@ -1,17 +1,31 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Configuration;
 using System.Text;
+using webApi_Live.Data;
 using webApi_Live.Servicos;
 using webApi_Live.Servicos.Interface;
+using Microsoft.EntityFrameworkCore;
+using webApi_Live.Repositorio;
+using webApi_Live.Repositorio.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetValue<string>("DefaultConnection"));
+    // Substitua "DefaultConnection" pela sua string de conexão ao banco de dados.
+});
+
+builder.Services.AddTransient<IAlunoRepositorio, AlunoRepositorio>();
+builder.Services.AddTransient<IAlunoServico, AlunoServico>();
+builder.Services.AddTransient<ITokenGeneratorServico, TokenGeneratorServico>();
 
 builder.Services.AddControllers();
-builder.Services.AddSingleton<ITokenGeneratorServico, TokenGeneratorServico>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
